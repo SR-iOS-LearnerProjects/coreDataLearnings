@@ -51,14 +51,45 @@ extension InfoViewController: UITableViewDelegate, UITableViewDataSource {
         let record = namesArr[indexPath.row]
         cell.fnameLbl.text = record.firstname
         cell.lnameLbl.text = record.lastname
+        cell.favBtn.tag = indexPath.row
+        cell.favBtn.addTarget(self, action: #selector(favBtnTapAction(_:)), for: UIControl.Event.touchUpInside)
+        cell.deleteBtn.tag = indexPath.row
+        cell.deleteBtn.addTarget(self, action: #selector(deleteBtnTapAction(_:)), for: UIControl.Event.touchUpInside)
         return cell
     }
     
+    @objc func favBtnTapAction(_ sender: UIButton) {
+        
+    }
+    
+    @objc func deleteBtnTapAction(_ sender: UIButton) {
+        
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let vc = self.storyboard?.instantiateViewController(identifier: "InfoDVC") as! InfoDetailVC
-        vc.fName = namesArr[indexPath.row].firstname!
-        vc.lName = namesArr[indexPath.row].lastname!
-        self.navigationController?.pushViewController(vc, animated: true)
+        let vr = UIStoryboard.init(name: "Main", bundle: Bundle.main).instantiateViewController(withIdentifier: "InfoDVC") as? InfoDetailVC
+
+        //let vr = story.instantiateViewController(identifier: "InfoDVC") as? InfoDetailVC
+        
+       // let vc = self.storyboard?.instantiateViewController(identifier: "InfoDVC") as! InfoDetailVC
+        vr?.fName = namesArr[indexPath.row].firstname!
+        vr?.lName = namesArr[indexPath.row].lastname!
+        self.navigationController?.pushViewController(vr!, animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        if editingStyle == .delete {
+            let name = namesArr[indexPath.row]
+            context.delete(name)
+            (UIApplication.shared.delegate as! AppDelegate).saveContext()
+            do {
+                namesArr = try context.fetch(User.fetchRequest())
+            } catch {
+                print("Error")
+            }
+        }
+        infoTableView.reloadData()
     }
     
     func fetchData() {
