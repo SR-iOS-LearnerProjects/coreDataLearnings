@@ -16,6 +16,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var lnameTF: UITextField!
     @IBOutlet weak var saveBtn: UIButton!
     
+    var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -26,6 +28,26 @@ class ViewController: UIViewController {
     }
 
     @IBAction func saveBtnTapped(_ sender: UIButton) {
+        
+        self.view.endEditing(true)
+        
+        //getting values from textfields
+        let firstName = fnameTF.text
+        let lastName = lnameTF.text
+        
+        let fullName = NSEntityDescription.insertNewObject(forEntityName: "User", into: context)
+        fullName.setValue(firstName, forKey: "firstname")
+        fullName.setValue(lastName, forKey: "lastname")
+        
+        do {
+            try context.save()
+            fnameTF.text = ""
+            lnameTF.text = ""
+        }
+        catch {
+            print("Error")
+        }
+        
         let vc = self.storyboard?.instantiateViewController(identifier: "InfoVC") as! InfoViewController
         self.navigationController?.pushViewController(vc, animated: true)
     }

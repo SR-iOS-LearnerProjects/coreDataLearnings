@@ -18,10 +18,12 @@ class InfoViewController: UIViewController {
     let fnameArr = ["One","Two"]
     let lnameArr = ["One Lastname","Two Lastname"]
     
+    var namesArr:[User] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        
+        fetchData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -41,21 +43,31 @@ extension InfoViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return fnameArr.count
+        return namesArr.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = infoTableView.dequeueReusableCell(withIdentifier: "cell") as! InfoTableViewCell
-        cell.fnameLbl.text = fnameArr[indexPath.row]
-        cell.lnameLbl.text = lnameArr[indexPath.row]
+        let cell = infoTableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! InfoTableViewCell
+        let record = namesArr[indexPath.row]
+        cell.fnameLbl.text = record.firstname
+        cell.lnameLbl.text = record.lastname
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = self.storyboard?.instantiateViewController(identifier: "InfoDVC") as! InfoDetailVC
-        vc.fName = fnameArr[indexPath.row]
-        vc.lName = lnameArr[indexPath.row]
+        vc.fName = namesArr[indexPath.row].firstname!
+        vc.lName = namesArr[indexPath.row].lastname!
         self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func fetchData() {
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        do {
+            namesArr = try context.fetch(User.fetchRequest())
+        } catch {
+            print("Error")
+        }
     }
     
 }
